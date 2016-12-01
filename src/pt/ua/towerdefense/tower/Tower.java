@@ -46,7 +46,7 @@ public class Tower extends CThread {
         assert map != null;
         assert position != null;
         assert attributes != null;
-        assert map.isPositionNotInPath(position);
+        assert !map.isPositionInPath(position);
 
         this.map = map;
         this.position = position;
