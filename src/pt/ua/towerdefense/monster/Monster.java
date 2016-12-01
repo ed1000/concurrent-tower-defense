@@ -21,6 +21,7 @@ public class Monster extends CThread {
         assert map != null;
         assert actualPosition != null;
         assert direction != null;
+        assert !direction.isSubdirection();
         assert map.isPositionInPath(actualPosition);
 
         this.attributes = attributes;
@@ -29,6 +30,11 @@ public class Monster extends CThread {
         this.direction = direction;
 
         this.remainingHealth = this.attributes.getHealth();
+
+        assert this.actualPosition != null;
+        assert this.direction != null;
+        assert !this.direction.isSubdirection();
+        assert this.remainingHealth == this.attributes.getHealth();
     }
 
     @Override
@@ -38,6 +44,7 @@ public class Monster extends CThread {
 
     private boolean isRoadAvailableLeft() {
         assert this.direction != null;
+        assert !this.direction.isSubdirection();
         assert this.actualPosition != null;
         assert this.map.isPositionInPath(this.actualPosition);
 
@@ -69,6 +76,7 @@ public class Monster extends CThread {
 
     private boolean isRoadAvailableRight() {
         assert this.direction != null;
+        assert !this.direction.isSubdirection();
         assert this.actualPosition != null;
         assert this.map.isPositionInPath(this.actualPosition);
 
@@ -100,6 +108,7 @@ public class Monster extends CThread {
 
     private boolean isRoadAvailableCenter() {
         assert this.direction != null;
+        assert !this.direction.isSubdirection();
         assert this.actualPosition != null;
         assert this.map.isPositionInPath(this.actualPosition);
 
@@ -131,6 +140,7 @@ public class Monster extends CThread {
 
     private void moveInFront() {
         assert this.direction != null;
+        assert !this.direction.isSubdirection();
         assert this.actualPosition != null;
         assert this.map.isPositionInPath(this.actualPosition);
 
@@ -171,6 +181,7 @@ public class Monster extends CThread {
 
     private void rotate(RotationWise rotation) {
         assert this.direction != null;
+        assert !this.direction.isSubdirection();
         assert rotation != null;
 
         switch (this.direction) {
@@ -201,6 +212,7 @@ public class Monster extends CThread {
         }
 
         assert this.direction != null;
+        assert !this.direction.isSubdirection();
     }
 
     public void gotShot(int damage) {

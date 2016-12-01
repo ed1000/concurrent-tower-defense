@@ -16,6 +16,11 @@ public class Tower extends CThread {
     public Tower(TerrainMap map, Position position, TowerAttributes attributes) {
         super();
 
+        assert map != null;
+        assert position != null;
+        assert attributes != null;
+        assert map.isPositionNotInPath(position);
+
         this.map = map;
         this.position = position;
         this.attributes = attributes;
