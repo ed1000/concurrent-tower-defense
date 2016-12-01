@@ -50,7 +50,11 @@ public class TerrainMap {
         return true;
     }
 
-    public boolean moveTo(Position pos) {
+    public boolean moveToPosition(Position pos) {
         return true;
+    }
+
+    public void shootPosition(Position pos) {
+
     }
 }

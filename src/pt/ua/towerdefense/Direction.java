@@ -5,10 +5,10 @@ public enum Direction {
     WEST(false),
     SOUTH(false),
     EAST(false),
-    NORTHWEST(true),
-    NORTHEAST(true),
-    SOUTHWEST(true),
-    SOUTHEAST(true);
+    NORTH_WEST(true),
+    NORTH_EAST(true),
+    SOUTH_WEST(true),
+    SOUTH_EAST(true);
 
     private boolean subdirection;
 

@@ -169,7 +169,7 @@ public class Monster extends CThread {
                 y >= 0 && y <= this.map.getHeight() &&
                 this.map.isPositionInPath(new Position(x, y)) &&
                 this.map.isPositionAvailable(new Position(x, y))) {
-            moved = this.map.moveTo(new Position(x, y));
+            moved = this.map.moveToPosition(new Position(x, y));
 
             if(moved)
                 this.actualPosition = new Position(x, y);
