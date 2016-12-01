@@ -1,9 +1,18 @@
 package pt.ua.towerdefense;
 
 /**
- * Created by ed1000 on 30-11-2016.
+ * Enum that represents the directions of a rotation.
+ *
+ * @author Eduardo Sousa
  */
 public enum RotationWise {
+    /**
+     * Clockwise rotation direction.
+     */
     CLOCKWISE,
+
+    /**
+     * Counterclockwise rotation direction.
+     */
     ANTICLOCKWISE
 }
