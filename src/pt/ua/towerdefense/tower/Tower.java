@@ -1,6 +1,5 @@
 package pt.ua.towerdefense.tower;
 
-import javafx.geometry.Pos;
 import pt.ua.concurrent.CThread;
 import pt.ua.towerdefense.Direction;
 import pt.ua.towerdefense.Position;
@@ -107,11 +106,41 @@ public class Tower extends CThread {
     }
 
     private boolean pointingToPosition(Position pos) {
+        double EPSILON = 1.0;
+
         assert pos != null;
         assert this.position != null;
         assert this.direction != null;
 
-        return true;
+        if(this.position.getCoordinateX() - pos.getCoordinateX() != 0) {
+            double angle = Math.toDegrees(Math.atan(((double) this.position.getCoordinateY() - pos.getCoordinateY()) /
+                    ((double) this.position.getCoordinateX() - pos.getCoordinateX())));
+
+            if(angle > 0 - EPSILON && angle < 0 + EPSILON) {
+                if(this.position.getCoordinateX() > pos.getCoordinateX())
+                    return this.direction == Direction.WEST;
+                else
+                    return this.direction == Direction.EAST;
+            } else if (angle > 45 - EPSILON && angle < 45 + EPSILON) {
+                if(this.position.getCoordinateX() < pos.getCoordinateX() &&
+                        this.position.getCoordinateY() > pos.getCoordinateY())
+                    return this.direction == Direction.NORTH_EAST;
+                else
+                    return this.direction == Direction.SOUTH_WEST;
+            } else if(angle > -45 - EPSILON && angle < -45 + EPSILON) {
+                if(this.position.getCoordinateX() < pos.getCoordinateX() &&
+                        this.position.getCoordinateY() < pos.getCoordinateY())
+                    return this.direction == Direction.SOUTH_EAST;
+                else
+                    return this.direction == Direction.NORTH_WEST;
+            } else
+                return false;
+        } else {
+            if(this.position.getCoordinateY() > pos.getCoordinateY())
+                return this.direction == Direction.NORTH;
+            else
+                return this.direction == Direction.SOUTH;
+        }
     }
 
     private boolean positionInShootingRange(Position pos) {
@@ -119,6 +148,12 @@ public class Tower extends CThread {
         assert this.attributes != null;
         assert this.position != null;
 
-        return true;
+        int minX = this.position.getCoordinateX() - this.attributes.getRadarRange();
+        int maxX = this.position.getCoordinateX() + this.attributes.getRadarRange();
+        int minY = this.position.getCoordinateY() - this.attributes.getRadarRange();
+        int maxY = this.position.getCoordinateY() + this.attributes.getRadarRange();
+
+        return pos.getCoordinateX() >= minX && pos.getCoordinateX() <= maxX &&
+                pos.getCoordinateY() >= minY && pos.getCoordinateY() <= maxY;
     }
 }
