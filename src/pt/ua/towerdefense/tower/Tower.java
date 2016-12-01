@@ -8,13 +8,38 @@ import pt.ua.towerdefense.TerrainMap;
 
 import java.util.List;
 
+/**
+ * Class responsible for the tower threads.
+ * Waits until a monster is in range. When a monster is in range,
+ * it will shoot it until the monster dies or is out of shooting
+ * range.
+ * Then goes back to sleep.
+ *
+ * @author Eduardo Sousa
+ */
 public class Tower extends CThread {
+    /* Map that defines the positions and contains all objects.
+    * It also acts as the synchronism point to block while the
+    * tower is waiting for a target. */
     private final TerrainMap map;
+
+    /* Position in the map where the tower is located. */
     private final Position position;
+
+    /* Attributes of the tower. */
     private final TowerAttributes attributes;
 
+    /* Direction to where the cannon of the tower is placed. */
     private Direction direction;
 
+    /**
+     * Constructor for the tower
+     *
+     * @param map reference to the TerrainMap.
+     * @param position reference to the position where the tower
+     *                 is located.
+     * @param attributes reference to the tower attributes.
+     */
     public Tower(TerrainMap map, Position position, TowerAttributes attributes) {
         super();
 
@@ -35,10 +60,23 @@ public class Tower extends CThread {
 
     }
 
+    /**
+     * Blocking function to wait for the targets in range.
+     *
+     * @return a list of positions where there are targets.
+     */
     private List<Position> activateRadar() {
+        //TODO: Lacks implementation
         return null;
     }
 
+    /**
+     * Rotates the tower's cannon in the desired direction.
+     * Blocks during the time it is rotating.
+     *
+     * @param rotation direction of the rotation (clockwise
+     *                 or counterclockwise)
+     */
     private void rotateToAngle(RotationWise rotation) {
         assert rotation != null;
         assert this.direction != null;
@@ -94,17 +132,37 @@ public class Tower extends CThread {
                 break;
         }
 
+        //TODO: Block while rotating
+
         assert this.direction != null;
     }
 
+    /**
+     * Shoots into a desired position.
+     * Blocks while shooting.
+     *
+     * @param pos position to shoot into.
+     */
     private void shoot(Position pos) {
         assert pos != null;
         assert this.pointingToPosition(pos);
         assert this.positionInShootingRange(pos);
 
         this.map.shootPosition(pos);
+
+        //TODO: Block while shooting
     }
 
+    /**
+     * Check if the tower's cannon is pointing to the
+     * right position.
+     *
+     * @param pos position where the tower needs to be
+     *            aiming.
+     *
+     * @return true if the tower is aiming for the right
+     *         position.
+     */
     private boolean pointingToPosition(Position pos) {
         double EPSILON = 1.0;
 
@@ -143,6 +201,12 @@ public class Tower extends CThread {
         }
     }
 
+    /**
+     * Check if the target is in shooting range.
+     *
+     * @param pos position of the target.
+     * @return true if the target is in shooting range.
+     */
     private boolean positionInShootingRange(Position pos) {
         assert pos != null;
         assert this.attributes != null;
