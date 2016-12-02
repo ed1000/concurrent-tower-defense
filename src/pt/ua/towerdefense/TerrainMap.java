@@ -1,5 +1,11 @@
 package pt.ua.towerdefense;
 
+import pt.ua.towerdefense.monster.Monster;
+import pt.ua.towerdefense.tower.Tower;
+
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 /**
  * Class that represents the map where all objects are in.
  * It also defines the paths where monsters can walk and
@@ -14,18 +20,50 @@ public class TerrainMap {
     /* Map height in cells */
     private final int height;
 
+    /* Position where the path begins */
+    private final Position begin;
+
+    /* Position where the path ends */
+    private final Position end;
+
+    /* Terrain mapping (False - not path | True - path) */
+    private final ConcurrentMap<Position, Boolean> map;
+
+    /* Map that contains all monster locations in game */
+    private ConcurrentMap<Position, Monster> monsterLocations;
+
+    /* Map that contains all tower locations in game */
+    private ConcurrentMap<Position, Tower> towerLocations;
+
     /**
      * Constructor for the TerrainMap object.
      *
      * @param width map height.
      * @param height map width.
+     * @param begin position where the path begins.
+     * @param end position where the path ends.
+     * @param map terrain distribution.
      */
-    public TerrainMap(int width, int height) {
+    public TerrainMap(int width, int height, Position begin, Position end, ConcurrentMap<Position, Boolean> map) {
         assert width > 0;
         assert height > 0;
+        assert begin != null;
+        assert begin.getCoordinateX() >= 0 && begin.getCoordinateX() <= width;
+        assert begin.getCoordinateY() >= 0 && begin.getCoordinateY() <= height;
+        assert end != null;
+        assert end.getCoordinateX() >= 0 && end.getCoordinateX() <= width;
+        assert end.getCoordinateY() >= 0 && end.getCoordinateY() <= height;
+        assert !begin.equals(end);
+        assert map != null;
+        assert map.size() == width * height;
 
         this.width = width;
         this.height = height;
+        this.begin = begin;
+        this.end = end;
+        this.map = map;
+        this.monsterLocations = new ConcurrentHashMap<>();
+        this.towerLocations = new ConcurrentHashMap<>();
     }
 
     /**
@@ -47,6 +85,24 @@ public class TerrainMap {
     }
 
     /**
+     * Getter for the beginning of the path.
+     *
+     * @return position where the path begins.
+     */
+    public Position getBegin() {
+        return begin;
+    }
+
+    /**
+     * Getter for the ending of the path.
+     *
+     * @return position where the path ends.
+     */
+    public Position getEnd() {
+        return end;
+    }
+
+    /**
      * Checks if the position is in the path.
      *
      * @param pos position to be checked.
@@ -59,9 +115,7 @@ public class TerrainMap {
         assert pos.getCoordinateY() >= 0;
         assert pos.getCoordinateY() <= this.height;
 
-        // TODO: Lacks implementation.
-
-        return true;
+        return this.map.get(pos);
     }
 
     /**
@@ -77,9 +131,14 @@ public class TerrainMap {
         assert pos.getCoordinateY() >= 0;
         assert pos.getCoordinateY() <= this.height;
 
-        // TODO: Lacks implementation.
+        Class t = Thread.currentThread().getClass();
 
-        return true;
+        if(t.equals(Monster.class)) {
+            return this.monsterLocations.containsKey(pos);
+        } else if(t.equals(Tower.class)) {
+            return this.towerLocations.containsKey(pos);
+        } else
+            return false;
     }
 
     /**
@@ -89,7 +148,7 @@ public class TerrainMap {
      * @param pos position to where you want to move the object.
      * @return true if the object was moved.
      */
-    public boolean moveToPosition(Position pos) {
+    public synchronized boolean moveToPosition(Position pos) {
         // TODO: Lacks implementation.
         return true;
     }
@@ -102,7 +161,7 @@ public class TerrainMap {
      *
      * @param pos position to where you want to shoot.
      */
-    public void shootPosition(Position pos) {
+    public synchronized void shootPosition(Position pos) {
         // TODO: Lacks implementation.
     }
 }
