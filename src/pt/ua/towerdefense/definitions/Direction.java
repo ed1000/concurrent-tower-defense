@@ -1,4 +1,4 @@
-package pt.ua.towerdefense;
+package pt.ua.towerdefense.definitions;
 
 /**
  * Enum that represents all the directions that a tower

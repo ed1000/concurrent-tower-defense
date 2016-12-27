@@ -1,10 +1,10 @@
-package pt.ua.towerdefense.tower;
+package pt.ua.towerdefense.towers;
 
 import pt.ua.concurrent.CThread;
-import pt.ua.towerdefense.Direction;
-import pt.ua.towerdefense.Position;
-import pt.ua.towerdefense.RotationWise;
-import pt.ua.towerdefense.TerrainMap;
+import pt.ua.towerdefense.definitions.Direction;
+import pt.ua.towerdefense.definitions.Position;
+import pt.ua.towerdefense.definitions.RotationWise;
+import pt.ua.towerdefense.world.TerrainMap;
 
 import java.util.List;
 

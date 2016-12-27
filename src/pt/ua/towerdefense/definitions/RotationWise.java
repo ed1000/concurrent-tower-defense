@@ -1,4 +1,4 @@
-package pt.ua.towerdefense;
+package pt.ua.towerdefense.definitions;
 
 /**
  * Enum that represents the directions of a rotation.

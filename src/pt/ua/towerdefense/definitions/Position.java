@@ -1,4 +1,4 @@
-package pt.ua.towerdefense;
+package pt.ua.towerdefense.definitions;
 
 /**
  * Class that represents the position of an object in the

@@ -1,4 +1,4 @@
-package pt.ua.towerdefense.monster;
+package pt.ua.towerdefense.monsters;
 
 /**
  * Class that represents the Monsters attributes, like: health, speed.

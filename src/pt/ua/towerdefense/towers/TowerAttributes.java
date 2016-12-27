@@ -1,4 +1,4 @@
-package pt.ua.towerdefense.tower;
+package pt.ua.towerdefense.towers;
 
 /**
  * Class that represents the attributes of a tower, like for example: potential damage, shooting range.

@@ -1,7 +1,9 @@
-package pt.ua.towerdefense;
+package pt.ua.towerdefense.world;
 
-import pt.ua.towerdefense.monster.Monster;
-import pt.ua.towerdefense.tower.Tower;
+import pt.ua.concurrent.CThread;
+import pt.ua.towerdefense.definitions.Position;
+import pt.ua.towerdefense.monsters.Monster;
+import pt.ua.towerdefense.towers.Tower;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -78,7 +80,7 @@ public class TerrainMap {
     /**
      * Getter for the map height.
      *
-     * @return map heigth.
+     * @return map height.
      */
     public int getHeight() {
         return height;
@@ -126,10 +128,8 @@ public class TerrainMap {
      */
     public boolean isPositionAvailable(Position pos) {
         assert pos != null;
-        assert pos.getCoordinateX() >= 0;
-        assert pos.getCoordinateX() <= this.width;
-        assert pos.getCoordinateY() >= 0;
-        assert pos.getCoordinateY() <= this.height;
+        assert pos.getCoordinateX() >= 0 && pos.getCoordinateX() <= this.width;
+        assert pos.getCoordinateY() >= 0 && pos.getCoordinateY() <= this.height;
 
         Class t = Thread.currentThread().getClass();
 
@@ -139,6 +139,44 @@ public class TerrainMap {
             return this.towerLocations.containsKey(pos);
         } else
             return false;
+    }
+
+    /**
+     * Inserts tower in the map.
+     *
+     * @param pos position where you want to put the tower.
+     * @return true if the tower was successfully placed. False in case it failed.
+     */
+    public synchronized boolean insertTower(Position pos) {
+        assert pos != null;
+        assert pos.getCoordinateX() >= 0 && pos.getCoordinateX() <= this.width;
+        assert pos.getCoordinateY() >= 0 && pos.getCoordinateY() <= this.height;
+        assert CThread.currentThread().getClass().equals(Tower.class);
+        assert !isPositionInPath(pos);
+
+        Tower tower = (Tower) CThread.currentThread();
+
+        if(towerLocations.containsKey(pos))
+            return false;
+        else {
+            towerLocations.put(pos, tower);
+            return true;
+        }
+    }
+
+    /**
+     * Insert monster in map.
+     *
+     * @param pos
+     */
+    public synchronized void insertMonster(Position pos) {
+        assert pos != null;
+        assert pos.getCoordinateX() >= 0 && pos.getCoordinateX() <= this.width;
+        assert pos.getCoordinateY() >= 0 && pos.getCoordinateY() <= this.height;
+        assert CThread.currentThread().getClass().equals(Monster.class);
+        assert pos.equals(this.begin);
+
+
     }
 
     /**
