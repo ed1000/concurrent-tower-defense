@@ -1,0 +1,63 @@
+package pt.ua.towerdefense;
+
+import pt.ua.concurrent.Metronome;
+import pt.ua.gboard.Gelem;
+import pt.ua.gboard.ImageGelem;
+import pt.ua.gboard.games.Labyrinth;
+import pt.ua.gboard.games.LabyrinthGelem;
+import pt.ua.towerdefense.definitions.ConfigurationValues;
+import pt.ua.towerdefense.definitions.Direction;
+import pt.ua.towerdefense.monsters.Monster;
+import pt.ua.towerdefense.monsters.MonsterAttributes;
+import pt.ua.towerdefense.towers.Tower;
+import pt.ua.towerdefense.towers.TowerAttributes;
+import pt.ua.towerdefense.world.Position;
+import pt.ua.towerdefense.world.WorldState;
+
+public class TowerDefense {
+    public static void main(String[] args) throws InterruptedException {
+        WorldState state = initializeWorldState();
+        MonsterAttributes monsterAttributes = initializeMonsterAttributes();
+        TowerAttributes towerAttributes = initializeTowerAttributes();
+        Metronome metronome = initializeMetronome();
+
+        Tower tower = new Tower(state, metronome, new Position(4, 0), towerAttributes);
+        tower.start();
+        tower = new Tower(state, metronome, new Position(4, 2), towerAttributes);
+        tower.start();
+
+        int i = 0;
+        while (i < 10) {
+            Monster monster = new Monster(monsterAttributes, state, metronome, state.getPathBeginning(), Direction.EAST);
+            monster.start();
+            i++;
+            Thread.sleep(200);
+        }
+
+    }
+
+    private static WorldState initializeWorldState() {
+        LabyrinthGelem.setShowRoadBoundaries();
+        Labyrinth maze = new Labyrinth("map.txt", new char[] {'X'}, 1);
+        Gelem wall = new ImageGelem("wall.png", maze.board, 100);
+        maze.attachGelemToWallSymbol('#', wall);
+        Gelem monster = new ImageGelem("monster.png", maze.board, 100);
+        Gelem tower = new ImageGelem("tower.png", maze.board, 100);
+
+        return new WorldState(maze, new Position(0, 1), new Position(9, 8),
+                monster, tower);
+    }
+
+    private static MonsterAttributes initializeMonsterAttributes() {
+        return new MonsterAttributes(100, 5, 2);
+    }
+
+    private static TowerAttributes initializeTowerAttributes() {
+        return new TowerAttributes(50, 1, 1, 1, 2,
+                1, 3, 2);
+    }
+
+    private static Metronome initializeMetronome() {
+        return new Metronome(ConfigurationValues.TICK_MS);
+    }
+}

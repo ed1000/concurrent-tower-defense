@@ -1,10 +1,12 @@
 package pt.ua.towerdefense.monsters;
 
+import com.sun.org.apache.xpath.internal.SourceTree;
 import pt.ua.concurrent.CThread;
+import pt.ua.concurrent.Metronome;
 import pt.ua.towerdefense.definitions.Direction;
-import pt.ua.towerdefense.definitions.Position;
 import pt.ua.towerdefense.definitions.RotationWise;
-import pt.ua.towerdefense.world.TerrainMap;
+import pt.ua.towerdefense.world.Position;
+import pt.ua.towerdefense.world.WorldState;
 
 /**
  * Class that represents Monsters.
@@ -15,8 +17,11 @@ public class Monster extends CThread {
     /* Monster's attributes. Defines speed and health */
     private final MonsterAttributes attributes;
 
-    /* Defines the map where the monster is */
-    private final TerrainMap map;
+    /* */
+    private final WorldState worldState;
+
+    /* Metronome that helps sync all threads based on time */
+    private final Metronome metronome;
 
     /* Health that the monster still has */
     private int remainingHealth;
@@ -31,22 +36,26 @@ public class Monster extends CThread {
      * Constructor for the Monsters object.
      *
      * @param attributes attributes that define the monster's characteristics.
-     * @param map map where the monster is.
+     * @param world world where the monster is.
+     * @param metronome metronome to sync in time.
      * @param actualPosition position where the object must start.
      * @param direction heading of the monster.
      */
-    public Monster(MonsterAttributes attributes, TerrainMap map, Position actualPosition, Direction direction) {
+    public Monster(MonsterAttributes attributes, WorldState world, Metronome metronome, Position actualPosition,
+                   Direction direction) {
         super();
 
         assert attributes != null;
-        assert map != null;
+        assert world != null;
         assert actualPosition != null;
         assert direction != null;
         assert !direction.isSubdirection();
-        assert map.isPositionInPath(actualPosition);
+        assert world.isPositionInPath(actualPosition);
+        assert world.getPathBeginning().equals(actualPosition);
 
         this.attributes = attributes;
-        this.map = map;
+        this.worldState = world;
+        this.metronome = metronome;
         this.actualPosition = actualPosition;
         this.direction = direction;
 
@@ -60,7 +69,28 @@ public class Monster extends CThread {
 
     @Override
     public void run() {
+        worldState.addMonster(this);
 
+        boolean left, front;
+
+        while(remainingHealth > 0 && !actualPosition.equals(worldState.getPathEnd())) {
+            left = isRoadAvailableLeft();
+            front = isRoadAvailableCenter();
+
+            if(front)
+                moveInFront();
+            else if(left)
+                rotate(RotationWise.ANTICLOCKWISE);
+            else
+                rotate(RotationWise.CLOCKWISE);
+        }
+
+        if(remainingHealth <= 0)
+            System.out.println("I got killed");
+        else
+            System.out.println("I reached the end");
+
+        worldState.removeMonster();
     }
 
     /**
@@ -72,69 +102,26 @@ public class Monster extends CThread {
         assert this.direction != null;
         assert !this.direction.isSubdirection();
         assert this.actualPosition != null;
-        assert this.map.isPositionInPath(this.actualPosition);
+        assert this.worldState.isPositionInPath(this.actualPosition);
 
-        int x = this.actualPosition.getCoordinateX();
-        int y = this.actualPosition.getCoordinateY();
+        Direction dir = Direction.NORTH;
 
-        switch (direction) {
+        switch (this.direction) {
             case NORTH:
+                dir = Direction.WEST;
+                break;
             case SOUTH:
-                if(direction == Direction.NORTH)
-                    x--;
-                else
-                    x++;
+                dir = Direction.EAST;
                 break;
             case EAST:
+                dir = Direction.NORTH;
+                break;
             case WEST:
-                if(direction == Direction.EAST)
-                    y--;
-                else
-                    y++;
+                dir = Direction.SOUTH;
                 break;
         }
 
-        return x >= 0 && x <= this.map.getWidth() &&
-                y >= 0 && y <= this.map.getHeight() &&
-                this.map.isPositionInPath(new Position(x, y)) &&
-                this.map.isPositionAvailable(new Position(x, y));
-    }
-
-    /**
-     * Checks if there is a road to the right side of the monster.
-     *
-     * @return true if there is a road at his right.
-     */
-    private boolean isRoadAvailableRight() {
-        assert this.direction != null;
-        assert !this.direction.isSubdirection();
-        assert this.actualPosition != null;
-        assert this.map.isPositionInPath(this.actualPosition);
-
-        int x = this.actualPosition.getCoordinateX();
-        int y = this.actualPosition.getCoordinateY();
-
-        switch (direction) {
-            case NORTH:
-            case SOUTH:
-                if(direction == Direction.NORTH)
-                    x++;
-                else
-                    x--;
-                break;
-            case EAST:
-            case WEST:
-                if(direction == Direction.EAST)
-                    y++;
-                else
-                    y--;
-                break;
-        }
-
-        return x >= 0 && x <= this.map.getWidth() &&
-                y >= 0 && y <= this.map.getHeight() &&
-                this.map.isPositionInPath(new Position(x, y)) &&
-                this.map.isPositionAvailable(new Position(x, y));
+        return this.worldState.isPathInDirection(dir);
     }
 
     /**
@@ -146,32 +133,9 @@ public class Monster extends CThread {
         assert this.direction != null;
         assert !this.direction.isSubdirection();
         assert this.actualPosition != null;
-        assert this.map.isPositionInPath(this.actualPosition);
+        assert this.worldState.isPositionInPath(this.actualPosition);
 
-        int x = this.actualPosition.getCoordinateX();
-        int y = this.actualPosition.getCoordinateY();
-
-        switch (direction) {
-            case NORTH:
-            case SOUTH:
-                if (direction == Direction.NORTH)
-                    y--;
-                else
-                    y++;
-                break;
-            case EAST:
-            case WEST:
-                if (direction == Direction.EAST)
-                    x++;
-                else
-                    x--;
-                break;
-        }
-
-        return x >= 0 && x <= this.map.getWidth() &&
-                y >= 0 && y <= this.map.getHeight() &&
-                this.map.isPositionInPath(new Position(x, y)) &&
-                this.map.isPositionAvailable(new Position(x, y));
+        return this.worldState.isPathInDirection(this.direction);
     }
 
     /**
@@ -179,44 +143,37 @@ public class Monster extends CThread {
      * Blocks while the monster is moving.
      */
     private void moveInFront() {
+        int waitingCycles = this.attributes.getMoveCycles();
+
         assert this.direction != null;
         assert !this.direction.isSubdirection();
         assert this.actualPosition != null;
-        assert this.map.isPositionInPath(this.actualPosition);
+        assert this.worldState.isPositionInPath(this.actualPosition);
 
-        boolean moved;
-        int x = this.actualPosition.getCoordinateX();
-        int y = this.actualPosition.getCoordinateY();
+        while (waitingCycles > 0) {
+            this.metronome.sync();
+            waitingCycles--;
+        }
 
         switch (direction) {
             case NORTH:
+                this.actualPosition = new Position(this.actualPosition.getCoordinateX(), this.actualPosition.getCoordinateY()-1);
+                break;
+            case WEST:
+                this.actualPosition = new Position(this.actualPosition.getCoordinateX()-1, this.actualPosition.getCoordinateY());
+                break;
             case SOUTH:
-                if (direction == Direction.NORTH)
-                    y--;
-                else
-                    y++;
+                this.actualPosition = new Position(this.actualPosition.getCoordinateX(), this.actualPosition.getCoordinateY()+1);
                 break;
             case EAST:
-            case WEST:
-                if (direction == Direction.EAST)
-                    x++;
-                else
-                    x--;
+                this.actualPosition = new Position(this.actualPosition.getCoordinateX()+1, this.actualPosition.getCoordinateY());
                 break;
         }
 
-        if(x >= 0 && x <= this.map.getWidth() &&
-                y >= 0 && y <= this.map.getHeight() &&
-                this.map.isPositionInPath(new Position(x, y)) &&
-                this.map.isPositionAvailable(new Position(x, y))) {
-            moved = this.map.moveToPosition(new Position(x, y));
-
-            if(moved)
-                this.actualPosition = new Position(x, y);
-        }
+        worldState.moveMonster();
 
         assert this.actualPosition != null;
-        assert this.map.isPositionInPath(this.actualPosition);
+        assert this.worldState.isPositionInPath(this.actualPosition);
     }
 
     /**
@@ -226,35 +183,47 @@ public class Monster extends CThread {
      * @param rotation rotation direction (clockwise or counterclockwise).
      */
     private void rotate(RotationWise rotation) {
+        int waitingCycles = this.attributes.getRotateCycles();
+
         assert this.direction != null;
         assert !this.direction.isSubdirection();
         assert rotation != null;
 
-        switch (this.direction) {
-            case NORTH:
-                if(rotation == RotationWise.CLOCKWISE)
+        while (waitingCycles > 0) {
+            this.metronome.sync();
+            waitingCycles--;
+        }
+
+        if(rotation == RotationWise.CLOCKWISE) {
+            switch (this.direction) {
+                case NORTH:
                     this.direction = Direction.EAST;
-                else
-                    this.direction = Direction.WEST;
-                break;
-            case EAST:
-                if(rotation == RotationWise.CLOCKWISE)
-                    this.direction = Direction.SOUTH;
-                else
+                    break;
+                case WEST:
                     this.direction = Direction.NORTH;
-                break;
-            case SOUTH:
-                if(rotation == RotationWise.CLOCKWISE)
+                    break;
+                case SOUTH:
                     this.direction = Direction.WEST;
-                else
+                    break;
+                case EAST:
+                    this.direction = Direction.SOUTH;
+                    break;
+            }
+        } else if(rotation == RotationWise.ANTICLOCKWISE) {
+            switch (this.direction) {
+                case NORTH:
+                    this.direction = Direction.WEST;
+                    break;
+                case WEST:
+                    this.direction = Direction.SOUTH;
+                    break;
+                case SOUTH:
                     this.direction = Direction.EAST;
-                break;
-            case WEST:
-                if(rotation == RotationWise.CLOCKWISE)
+                    break;
+                case EAST:
                     this.direction = Direction.NORTH;
-                else
-                    this.direction = Direction.SOUTH;
-                break;
+                    break;
+            }
         }
 
         assert this.direction != null;
@@ -262,11 +231,11 @@ public class Monster extends CThread {
     }
 
     /**
-     * Function to decrese the amount of health of a monster when it is shot by a tower.
+     * Function to decrease the amount of health of a monster when it is shot by a tower.
      *
      * @param damage damage inflicted by the shot.
      */
-    public void gotShot(int damage) {
+    public synchronized void gotShot(int damage) {
         assert damage >= 0;
         assert this.remainingHealth > 0;
         assert this.remainingHealth <= this.attributes.getHealth();
@@ -275,5 +244,9 @@ public class Monster extends CThread {
 
         assert this.remainingHealth >= 0;
         assert this.remainingHealth <= this.attributes.getHealth();
+    }
+
+    public synchronized Position getActualPosition() {
+        return this.actualPosition;
     }
 }

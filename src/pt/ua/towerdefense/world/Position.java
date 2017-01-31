@@ -1,4 +1,6 @@
-package pt.ua.towerdefense.definitions;
+package pt.ua.towerdefense.world;
+
+import java.util.Objects;
 
 /**
  * Class that represents the position of an object in the
@@ -43,5 +45,21 @@ public class Position {
      */
     public int getCoordinateY() {
         return coordinateY;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.coordinateX, this.coordinateY);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(this == obj)
+            return true;
+        if(obj == null || obj.getClass() != this.getClass())
+            return false;
+
+        Position pos = (Position) obj;
+        return this.coordinateX == pos.coordinateX && this.coordinateY == pos.coordinateY;
     }
 }

@@ -10,21 +10,27 @@ public class MonsterAttributes {
     /* Health of the monster */
     private final int health;
 
-    /* Speed to which the monster moves */
-    private final int speed;
+    /* Number of cycles that takes a monster to move one cell */
+    private final int moveCycles;
+
+    /* Number of cycles that takes a monster to rotate 90 degrees */
+    private final int rotateCycles;
 
     /**
      * Constructor for objects of the type MonsterAttributes.
      *
      * @param health health of the monster
-     * @param speed speed of the monster
+     * @param moveCycles number of cycles to move
+     * @param rotateCycles number of cycles to rotate
      */
-    public MonsterAttributes(int health, int speed) {
+    public MonsterAttributes(int health, int moveCycles, int rotateCycles) {
         assert health > 0;
-        assert speed > 0;
+        assert moveCycles > 0;
+        assert rotateCycles > 0;
 
         this.health = health;
-        this.speed = speed;
+        this.moveCycles = moveCycles;
+        this.rotateCycles = rotateCycles;
     }
 
     /**
@@ -37,11 +43,20 @@ public class MonsterAttributes {
     }
 
     /**
-     * Getter for the monster's speed.
+     * Getter for the number of cycles that the monster takes to move one cell.
      *
-     * @return a positive integer representing the monster's speed.
+     * @return a positive integer representing the number of cycles.
      */
-    public int getSpeed() {
-        return speed;
+    public int getMoveCycles() {
+        return moveCycles;
+    }
+
+    /**
+     * Getter for the number of cycles that the monster takes to rotate 90 degrees.
+     *
+     * @return a positive integer representing the number of cycles.
+     */
+    public int getRotateCycles() {
+        return rotateCycles;
     }
 }

@@ -13,8 +13,14 @@ public class TowerAttributes {
     /* Building cost of the tower */
     private final int buildCost;
 
-    /* Speed at which the tower rotates the cannon */
-    private final int rotationalSpeed;
+    /* Number of cycles required to rotate tower 45 degrees */
+    private final int rotateCycles;
+
+    /* Number of cycles before shooting */
+    private final int shootCycles;
+
+    /* Number of cycles between shots */
+    private final int cooldownCycles;
 
     /* Max range to shoot at an object */
     private final int shotRange;
@@ -23,26 +29,30 @@ public class TowerAttributes {
     private final int radarRange;
 
     /* Time it takes for the radar to complete a sweep of the area */
-    private final int radarTime;
+    private final int radarCycles;
 
     /**
      * Constructor for the Tower Attributes objects.
      *
      * @param potentialDamage max damage caused by the tower.
      * @param buildCost building cost of the tower.
-     * @param rotationalSpeed speed at which the tower rotates the cannon.
+     * @param rotateCycles number of cycles that the tower takes to rotate the cannon.
+     * @param shootCycles number of cycles that the tower takes before shooting.
+     * @param cooldownCycles number of cycles that the tower takes after shooting.
      * @param shotRange max range to shoot at an object.
      * @param radarRange max range for the tower to detect an object.
-     * @param radarTime time the tower takes to complete a search of the area
+     * @param radarCycles  minimum number of cycles that the radar takes.
      */
-    public TowerAttributes(int potentialDamage, int buildCost, int rotationalSpeed, int shotRange, int radarRange,
-                           int radarTime) {
+    public TowerAttributes(int potentialDamage, int buildCost, int rotateCycles, int shootCycles, int cooldownCycles,
+                           int shotRange, int radarRange, int radarCycles) {
         this.potentialDamage = potentialDamage;
         this.buildCost = buildCost;
-        this.rotationalSpeed = rotationalSpeed;
+        this.rotateCycles = rotateCycles;
+        this.shootCycles = shootCycles;
+        this.cooldownCycles = cooldownCycles;
         this.shotRange = shotRange;
         this.radarRange = radarRange;
-        this.radarTime = radarTime;
+        this.radarCycles = radarCycles;
     }
 
     /**
@@ -64,12 +74,30 @@ public class TowerAttributes {
     }
 
     /**
-     * Getter for the rotational speed of the tower's cannon.
+     * Getter for the number of cycles that it takes the tower to rotate the cannon 45 degrees.
      *
-     * @return a positive integer that represents the angular speed of the tower's cannon.
+     * @return a positive integer that represents the number of cycles.
      */
-    public int getRotationalSpeed() {
-        return rotationalSpeed;
+    public int getRotateCycles() {
+        return rotateCycles;
+    }
+
+    /**
+     * Getter for the number of cycles that it takes the tower before shooting.
+     *
+     * @return a positive integer that represents the number of cycles.
+     */
+    public int getShootCycles() {
+        return shootCycles;
+    }
+
+    /**
+     * Getter for the number of cycles that it takes the tower to cooldown after shooting.
+     *
+     * @return a positive integer that represents the number of cycles.
+     */
+    public int getCooldownCycles() {
+        return cooldownCycles;
     }
 
     /**
@@ -91,11 +119,11 @@ public class TowerAttributes {
     }
 
     /**
-     * Getter for the time it takes for a tower to complete a search of all objects in radar range.
+     * Getter for the number of cycles it takes for the tower to complete a search of all objects in radar range.
      *
      * @return a positive integer that represents the amount of time that the radar uses.
      */
-    public int getRadarTime() {
-        return radarTime;
+    public int getRadarCycles() {
+        return radarCycles;
     }
 }
