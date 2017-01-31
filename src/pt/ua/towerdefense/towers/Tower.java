@@ -19,10 +19,10 @@ import java.util.List;
  * @author Eduardo Sousa
  */
 public class Tower extends CThread {
-    /* */
+    /* World state */
     private final WorldState worldState;
 
-    /* */
+    /* Metronome that helps synchronize threads based on time */
     private final Metronome metronome;
 
     /* Position in the map where the tower is located. */
@@ -38,14 +38,15 @@ public class Tower extends CThread {
      * Constructor for the tower
      *
      * @param worldState reference to the world tower interface.
-     * @param position reference to the position where the tower
-     *                 is located.
+     * @param metronome metronome.
+     * @param position reference to the position where the tower is located.
      * @param attributes reference to the tower attributes.
      */
     public Tower(WorldState worldState, Metronome metronome, Position position, TowerAttributes attributes) {
         super();
 
         assert worldState != null;
+        assert metronome != null;
         assert position != null;
         assert attributes != null;
         assert worldState.isPositionForTower(position);
@@ -63,7 +64,6 @@ public class Tower extends CThread {
         while (true) {
             List<Position> positions = activateRadar();
 
-            System.out.println("I got " + positions.size() + " positions");
             if(positions.size() > 0) {
                 for(Position pos : positions) {
                     if(positionInShootingRange(pos)) {
@@ -91,7 +91,12 @@ public class Tower extends CThread {
             waitingCycles--;
         }
 
-        return this.worldState.getMonstersInRange();
+        List<Position> result = this.worldState.getMonstersInRange();
+
+        assert result != null;
+        assert !result.isEmpty();
+
+        return result;
     }
 
     /**
@@ -99,6 +104,9 @@ public class Tower extends CThread {
      * Blocks during the time it is rotating.
      */
     private void rotateToAngle(Position position) {
+        assert position != null;
+        assert worldState.isPositionInMap(position);
+
         int waitingCycles = this.attributes.getRotateCycles();
 
         while (waitingCycles > 0) {
@@ -107,6 +115,8 @@ public class Tower extends CThread {
         }
 
         aimingPosition = position;
+
+        assert aimingPosition != null;
     }
 
     /**
@@ -116,11 +126,12 @@ public class Tower extends CThread {
      * @param pos position to shoot into.
      */
     private void shoot(Position pos) {
-        int waitingCycles = this.attributes.getShootCycles();
-
         assert pos != null;
-        assert this.pointingToPosition(pos);
-        assert this.positionInShootingRange(pos);
+        assert worldState.isPositionInMap(pos);
+        assert pointingToPosition(pos);
+        assert positionInShootingRange(pos);
+
+        int waitingCycles = this.attributes.getShootCycles();
 
         while (waitingCycles > 0) {
             this.metronome.sync();
@@ -145,7 +156,9 @@ public class Tower extends CThread {
      * @return true if the tower is aiming for the right position.
      */
     private boolean pointingToPosition(Position pos) {
-        return aimingPosition == null ? false : aimingPosition.equals(pos);
+        assert pos != null;
+
+        return aimingPosition != null && aimingPosition.equals(pos);
     }
 
     /**
@@ -168,14 +181,29 @@ public class Tower extends CThread {
                 pos.getCoordinateY() >= minY && pos.getCoordinateY() <= maxY;
     }
 
+    /**
+     * Getter for the position where the tower was placed.
+     *
+     * @return position of the tower.
+     */
     public Position getPosition() {
         return this.position;
     }
 
+    /**
+     * Getter for the damage caused by a shot.
+     *
+     * @return a positive integer.
+     */
     public int getShotDamage() {
         return this.attributes.getPotentialDamage();
     }
 
+    /**
+     * Getter for the radar range.
+     *
+     * @return a positive integer.
+     */
     public int getRadarRange() {
         return this.attributes.getRadarRange();
     }

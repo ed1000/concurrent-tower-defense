@@ -1,6 +1,5 @@
 package pt.ua.towerdefense.world;
 
-import javafx.geometry.Pos;
 import pt.ua.concurrent.CThread;
 import pt.ua.gboard.Gelem;
 import pt.ua.gboard.games.Labyrinth;
@@ -15,20 +14,24 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 /**
- * Class that encapsulates and monitors the world state. Not allowing
- *
+ * Class that encapsulates and monitors the world state.
  *
  * @author Eduardo Sousa
  */
 public class WorldState {
+    /* */
     private final Labyrinth maze;
 
+    /**/
     private final Position begin;
 
+    /**/
     private final Position end;
 
+    /**/
     private final Gelem monsterGelem;
 
+    /**/
     private final Gelem towerGelem;
 
     /* */
@@ -37,7 +40,26 @@ public class WorldState {
     /* */
     private final ConcurrentMap<Position, Monster> monsterLocations;
 
+    /**
+     *
+     *
+     * @param maze
+     * @param begin
+     * @param end
+     * @param monsterGelem
+     * @param towerGelem
+     */
     public WorldState(Labyrinth maze, Position begin, Position end, Gelem monsterGelem, Gelem towerGelem) {
+        assert maze != null;
+        assert begin != null;
+        assert begin.getCoordinateX() >= 0 && begin.getCoordinateX() < maze.numberOfColumns;
+        assert begin.getCoordinateY() >= 0 && begin.getCoordinateY() < maze.numberOfLines;
+        assert end != null;
+        assert end.getCoordinateX() >= 0 && end.getCoordinateX() < maze.numberOfColumns;
+        assert end.getCoordinateY() >= 0 && end.getCoordinateY() < maze.numberOfLines;
+        assert monsterGelem != null;
+        assert towerGelem != null;
+
         this.maze = maze;
         this.begin = begin;
         this.end = end;
@@ -47,11 +69,19 @@ public class WorldState {
         this.monsterLocations = new ConcurrentHashMap<>();
     }
 
+    /**
+     *
+     * @param tower
+     */
     public synchronized void addTower(Tower tower) {
         this.maze.board.draw(towerGelem, tower.getPosition().getCoordinateY(), tower.getPosition().getCoordinateX(), 1);
         this.towerLocations.put(tower.getPosition(), tower);
     }
 
+    /**
+     *
+     * @param monster
+     */
     public synchronized void addMonster(Monster monster) {
         while(!isPositionAvailable(monster.getActualPosition()))
             try {
@@ -64,6 +94,9 @@ public class WorldState {
         this.monsterLocations.put(begin, monster);
     }
 
+    /**
+     *
+     */
     public synchronized void removeMonster() {
         Monster monster = (Monster) CThread.currentThread();
 
@@ -72,12 +105,23 @@ public class WorldState {
 
         this.maze.board.erase(monsterGelem, pos.getCoordinateY(), pos.getCoordinateX());
         this.monsterLocations.remove(pos);
+
+        notifyAll();
     }
 
+    /**
+     *
+     * @param position
+     * @return
+     */
     public synchronized boolean isPositionAvailable(Position position) {
         return !monsterLocations.containsKey(position);
     }
 
+    /**
+     *
+     * @return
+     */
     public synchronized List<Position> getMonstersInRange() {
         Tower tower = (Tower) CThread.currentThread();
         int range = tower.getRadarRange();
@@ -107,6 +151,10 @@ public class WorldState {
         return positions;
     }
 
+    /**
+     *
+     * @param position
+     */
     public synchronized void shootPosition(Position position) {
         Tower tower = (Tower) CThread.currentThread();
         Monster monster = monsterLocations.get(position);
@@ -119,6 +167,9 @@ public class WorldState {
         }
     }
 
+    /**
+     *
+     */
     public synchronized void moveMonster() {
         Monster monster = (Monster) CThread.currentThread();
         Position initialPosition = this.monsterLocations.entrySet().parallelStream().filter(entry -> entry.getValue().equals(monster)).
@@ -141,18 +192,37 @@ public class WorldState {
         notifyAll();
     }
 
+    /**
+     *
+     * @param position
+     * @return
+     */
     public synchronized boolean isPositionForTower(Position position) {
         return this.maze.isWall(position.getCoordinateY(), position.getCoordinateX());
     }
 
+    /**
+     *
+     * @return
+     */
     public Position getPathBeginning() {
         return this.begin;
     }
 
+    /**
+     *
+     * @param position
+     * @return
+     */
     public boolean isPositionInPath(Position position) {
         return this.maze.isOutside(position.getCoordinateY(), position.getCoordinateX());
     }
 
+    /**
+     *
+     * @param direction
+     * @return
+     */
     public boolean isPathInDirection(Direction direction) {
         Monster monster = (Monster) CThread.currentThread();
         Position pos = monster.getActualPosition();
@@ -175,7 +245,21 @@ public class WorldState {
         return this.maze.isOutside(pos.getCoordinateY(), pos.getCoordinateX());
     }
 
+    /**
+     *
+     * @return
+     */
     public Position getPathEnd() {
         return end;
+    }
+
+    /**
+     *
+     * @param position
+     * @return
+     */
+    public boolean isPositionInMap(Position position) {
+        return position.getCoordinateX() >= 0 && position.getCoordinateX() < maze.numberOfColumns &&
+                position.getCoordinateY() >= 0 && position.getCoordinateY() < maze.numberOfLines;
     }
 }

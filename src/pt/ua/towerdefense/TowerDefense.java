@@ -27,11 +27,10 @@ public class TowerDefense {
         tower.start();
 
         int i = 0;
-        while (i < 10) {
+        while (i < 5) {
             Monster monster = new Monster(monsterAttributes, state, metronome, state.getPathBeginning(), Direction.EAST);
             monster.start();
             i++;
-            Thread.sleep(200);
         }
 
     }
@@ -49,12 +48,15 @@ public class TowerDefense {
     }
 
     private static MonsterAttributes initializeMonsterAttributes() {
-        return new MonsterAttributes(100, 5, 2);
+        return new MonsterAttributes(ConfigurationValues.MONSTER_HEALTH, ConfigurationValues.MONSTER_MOVE_CYCLES,
+                ConfigurationValues.MONSTER_ROTATION_CYCLES);
     }
 
     private static TowerAttributes initializeTowerAttributes() {
-        return new TowerAttributes(50, 1, 1, 1, 2,
-                1, 3, 2);
+        return new TowerAttributes(ConfigurationValues.TOWER_POTENTIAL_DAMAGE, ConfigurationValues.TOWER_BUILD_COST,
+                ConfigurationValues.TOWER_ROTATION_CYCLES, ConfigurationValues.TOWER_SHOOT_CYCLES,
+                ConfigurationValues.TOWER_COOLDOWN_CYCLES, ConfigurationValues.TOWER_SHOT_RANGE,
+                ConfigurationValues.TOWER_RADAR_RANGE, ConfigurationValues.TOWER_RADAR_CYCLES);
     }
 
     private static Metronome initializeMetronome() {
