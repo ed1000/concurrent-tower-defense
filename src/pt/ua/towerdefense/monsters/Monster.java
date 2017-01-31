@@ -64,6 +64,8 @@ public class Monster extends CThread {
 
     @Override
     public void run() {
+        System.out.println("Monster #" + getId() + " starting...");
+
         worldState.addMonster(this);
 
         boolean left, front;
@@ -81,6 +83,11 @@ public class Monster extends CThread {
         }
 
         worldState.removeMonster();
+
+        if(remainingHealth.get() > 0)
+            System.out.println("Monster #" + getId() + " reached the end of the map.");
+        else
+            System.out.println("Monster #" + getId() + " died trying.");
     }
 
     /**

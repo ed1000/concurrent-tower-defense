@@ -23,14 +23,12 @@ public class TowerDefense {
 
         Tower tower = new Tower(state, metronome, new Position(4, 0), towerAttributes);
         tower.start();
-        tower = new Tower(state, metronome, new Position(4, 2), towerAttributes);
+        tower = new Tower(state, metronome, new Position(4, 4), towerAttributes);
         tower.start();
 
-        int i = 0;
-        while (i < 5) {
+        for(int i = 0; i < 25; i++) {
             Monster monster = new Monster(monsterAttributes, state, metronome, state.getPathBeginning(), Direction.EAST);
             monster.start();
-            i++;
         }
 
     }
