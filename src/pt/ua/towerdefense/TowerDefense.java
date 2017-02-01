@@ -36,10 +36,10 @@ public class TowerDefense {
     private static WorldState initializeWorldState() {
         LabyrinthGelem.setShowRoadBoundaries();
         Labyrinth maze = new Labyrinth("map.txt", new char[] {'X'}, 1);
-        Gelem wall = new ImageGelem("wall.png", maze.board, 100);
+        Gelem wall = new ImageGelem("textures/wall.png", maze.board, 100);
         maze.attachGelemToWallSymbol('#', wall);
-        Gelem monster = new ImageGelem("monster.png", maze.board, 100);
-        Gelem tower = new ImageGelem("tower.png", maze.board, 100);
+        Gelem monster = new ImageGelem("textures/monster.png", maze.board, 100);
+        Gelem tower = new ImageGelem("textures/tower.png", maze.board, 100);
 
         return new WorldState(maze, new Position(0, 1), new Position(9, 8),
                 monster, tower);

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+mkdir out
+find -name "*.java" > source.txt
+javac -cp "lib/*" -d out @source.txt
+rm source.txt
