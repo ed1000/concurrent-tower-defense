@@ -1,10 +1,10 @@
-##########
-XXXXXXXXX#
+####T#####
+BXXXXXXXX#
 ########X#
 ########X#
-########X#
+####T###X#
 #XXXXXXXX#
 #X########
 #X########
-#XXXXXXXXX
+#XXXXXXXXE
 ##########
